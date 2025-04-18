@@ -1,0 +1,46 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Trip Planner</title>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>Group Trip Planner</h2>
+  <input id="trip_id" placeholder="Enter Trip ID" />
+  <button onclick="joinTrip()">Join Trip</button>
+
+  <ul id="places"></ul>
+
+  <input id="place" placeholder="Add place" />
+  <button onclick="addPlace()">Add</button>
+
+  <script>
+    const socket = io("http://localhost:5000");
+
+    function joinTrip() {
+      const trip_id = document.getElementById("trip_id").value;
+      socket.emit("join_trip", trip_id);
+      socket.trip_id = trip_id;
+    }
+
+    function addPlace() {
+      const place = document.getElementById("place").value;
+      socket.emit("add_place", {
+        trip_id: socket.trip_id,
+        place: place
+      });
+    }
+
+    socket.on("trip_update", (places) => {
+      const ul = document.getElementById("places");
+      ul.innerHTML = "";
+      places.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = p;
+        ul.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
